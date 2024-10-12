@@ -33,6 +33,7 @@ class ErrorHandler {
         if (e.response?.statusCode == 401) {
           return (e.response?.data);
         }
+        logger.d(e.response?.data);
         return (e.response?.data['message'] ??
             e.response?.data['data']['message'] ??
             e.message);
@@ -41,9 +42,11 @@ class ErrorHandler {
           e.type == DioExceptionType.connectionTimeout) {
         return ("Error occurred, please try again");
       }
-      return (e.response?.data['message'] ??
-          e.response?.data['error'] ??
-          e.message);
+
+      return (e.response!.data.toString());
+      // return (e.response?.data['message'] ??
+      //     e.response?.data['error'] ??
+      //     e.message);
     }
     return ("Fail to process");
   }
