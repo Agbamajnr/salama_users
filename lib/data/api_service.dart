@@ -7,6 +7,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> login({
     required String identity,
+    required String password,
     required String userType,
     required String device,
   }) async {

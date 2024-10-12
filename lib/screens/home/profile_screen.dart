@@ -1,38 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:salama_users/app/notifiers/auth.notifier.dart';
 import 'package:salama_users/constants/colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Profile",
-                style: TextStyle(fontSize: 25),
-              ),
-              _buildProfileInfo(),
-              SizedBox(height: 10),
-              _buildProfileOptions(context),
-              SizedBox(height: 20),
-              _buildLogoutAndDeleteOptions(),
-            ],
+    return Consumer<AuthNotifier>(
+      builder: (context, AuthNotifier auth, child) => Scaffold(
+        backgroundColor: AppColors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Profile",
+                  style: TextStyle(fontSize: 25),
+                ),
+                _buildProfileInfo(auth.loginData?['user']),
+                const SizedBox(height: 10),
+                _buildProfileOptions(context, auth.loginData?['user']),
+                const SizedBox(height: 20),
+                _buildLogoutAndDeleteOptions(auth.loginData?['user'], context),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildProfileInfo() {
+  Widget _buildProfileInfo(dynamic user) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -41,15 +45,14 @@ class ProfileScreen extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 30,
-              backgroundImage: AssetImage(
-                  'assets/profile_picture.png'), // Use actual image path or network image
+              backgroundImage: AssetImage('assets/profile_picture.png'),
             ),
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Ogar Emmanuel Bassey',
+                  '${user['firstName']} ${user['lastName']} ${user['middleName'] ?? ""}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Row(
@@ -59,8 +62,9 @@ class ProfileScreen extends StatelessWidget {
                     Text('5.0 Rating'),
                   ],
                 ),
-                Text('08178383838', style: TextStyle(color: Colors.black54)),
-                Text('emmanue.logar512@gmail.com',
+                Text('${user['phone']}',
+                    style: TextStyle(color: Colors.black54)),
+                Text('${user['email'] ?? ""}',
                     style: TextStyle(color: Colors.black54)),
               ],
             ),
@@ -70,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileOptions(BuildContext context) {
+  Widget _buildProfileOptions(BuildContext context, dynamic user) {
     return Column(
       children: [
         _buildListTile(context, Icons.person, 'Personal Info'),
@@ -90,37 +94,42 @@ class ProfileScreen extends StatelessWidget {
         child: Icon(icon, color: AppColors.white),
       ),
       title: Text(title,
-          style: TextStyle(color: AppColors.background, fontSize: 16)),
-      trailing: Icon(Icons.arrow_forward_ios, color: AppColors.background),
+          style: const TextStyle(color: AppColors.background, fontSize: 16)),
+      trailing:
+          const Icon(Icons.arrow_forward_ios, color: AppColors.background),
       onTap: () {
         // Handle onTap navigation or logic here
       },
     );
   }
 
-  Widget _buildLogoutAndDeleteOptions() {
+  Widget _buildLogoutAndDeleteOptions(dynamic user, BuildContext context) {
+    final auth = context.read<AuthNotifier>();
     return Column(
       children: [
         ListTile(
-          leading: CircleAvatar(
+          leading: const CircleAvatar(
             backgroundColor: AppColors.primaryColor,
             child: Icon(Icons.settings, color: Colors.white),
           ),
-          title: Text('Logout',
+          title: const Text('Logout',
               style: TextStyle(color: AppColors.background, fontSize: 16)),
-          trailing: Icon(Icons.arrow_forward_ios, color: AppColors.background),
+          trailing:
+              const Icon(Icons.arrow_forward_ios, color: AppColors.background),
           onTap: () {
+            auth.logout(context);
             // Handle logout logic here
           },
         ),
         ListTile(
-          leading: CircleAvatar(
+          leading: const CircleAvatar(
             backgroundColor: AppColors.primaryColor,
             child: Icon(Icons.delete, color: Colors.white),
           ),
-          title: Text('Delete Account',
+          title: const Text('Delete Account',
               style: TextStyle(color: AppColors.background, fontSize: 16)),
-          trailing: Icon(Icons.arrow_forward_ios, color: AppColors.background),
+          trailing:
+              const Icon(Icons.arrow_forward_ios, color: AppColors.background),
           onTap: () {
             // Handle delete account logic here
           },

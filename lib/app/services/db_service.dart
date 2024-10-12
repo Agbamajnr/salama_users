@@ -21,10 +21,20 @@ class DBService {
   //   return null;
   // }
 
-  Future<String?> getToken() async {
-    // Implement the logic to retrieve the token from your database
-    // Return the token or null if not found
-    return ""; // Your implementation here
+  Future<void> getToken() async {
+    _storage.read(key: "token");
+  }
+
+  Future<void> saveToken(String value) async {
+    _storage.write(key: "token", value: value);
+  }
+
+  Future<void> getUser() async {
+    _storage.read(key: _userKey);
+  }
+
+  Future<void> saveUser(dynamic value) async {
+    _storage.write(key: _userKey, value: value);
   }
 
   Future<void> deleteUser() async {

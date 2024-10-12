@@ -28,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: AppColors.primaryColor,
       body: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(25.0),
         child: Center(child: Image.asset("assets/logo.png")),
       ),
     );
