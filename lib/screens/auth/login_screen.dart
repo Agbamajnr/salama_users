@@ -83,8 +83,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 16.0),
-
-                  // Password field
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(
