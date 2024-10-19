@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:salama_users/app/services/db_service.dart';
+import 'package:salama_users/app/utils/logger.dart';
 import 'package:salama_users/locator.dart';
 
 final _db = getIt<DBService>();
@@ -12,7 +13,7 @@ class DioManager {
 
   DioManager(this.tokenProvider) {
     _dio = Dio(BaseOptions(
-      baseUrl: 'http://100.26.53.189',
+      baseUrl: 'http://100.25.177.226',
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $tokenProvider',
@@ -26,9 +27,10 @@ class DioManager {
     ));
 
     _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) {
+      onRequest: (options, handler) async{
         // Attach access token to headers
-        final token = _db.getToken();
+        final token = await _db.getToken();
+        logger.d(token);
         final accessToken = token ?? tokenProvider;
 
         if (accessToken != null) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
+import 'package:salama_users/data/models/register_dto.dart';
 import 'package:salama_users/widgets/busy_button.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -204,6 +205,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           currentFocus.focusedChild?.unfocus();
                         }
                         await auth.register(context,
+                            RegisterDto(
                             firstName: _firstNameController.text,
                             lastName: _lastNameController.text,
                             middleName: _middleNameController.text,
@@ -211,7 +213,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             phone: _phoneController.text,
                             email: _emailController.text,
                             password: _passwordController.text,
-                            rePassword: _confirmPasswordController.text);
+                            firebaseToken: "",
+                            rePassword: _confirmPasswordController.text));
                       }
                     },
                   )

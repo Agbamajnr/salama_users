@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:salama_users/app/notifiers/auth.notifier.dart';
 import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/screens/home/active_drivers_screen.dart';
 import 'package:salama_users/screens/home/history_list.screen.dart';
@@ -24,6 +26,22 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       _currentIndex = index;
     });
+  }
+
+  @override
+  void initState() {
+    if(context.mounted){
+      context.read<AuthNotifier>().dashboard(context,
+          longitude: "6.99",
+          latitude: "4.66",
+          isActive: false,
+          firebaseToken: "dkhgjhgfeguyghuiegfguhufgih"
+      );
+      context.read<AuthNotifier>().getCurrentLocation(context);
+      context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
+
+    }
+    super.initState();
   }
 
   @override

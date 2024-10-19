@@ -1,6 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
+import 'package:salama_users/app/notifiers/auth.notifier.dart';
+import 'package:salama_users/app/utils/logger.dart';
 import 'package:salama_users/constants/colors.dart';
+import 'package:salama_users/screens/home/address_search_screen.dart';
 
 class NearbyDriversScreen extends StatefulWidget {
   const NearbyDriversScreen({super.key});
@@ -10,109 +15,116 @@ class NearbyDriversScreen extends StatefulWidget {
 }
 
 class _NearbyDriversScreenState extends State<NearbyDriversScreen> {
-  List<Driver> drivers = [
-    // Sample data
-    Driver(
-        name: 'Ogar Emmanuel',
-        rating: 4.7,
-        car: 'Toyota, Corolla',
-        price: 1289.45),
-    Driver(
-        name: 'Ogar Emmanuel',
-        rating: 4.7,
-        car: 'Toyota, Corolla',
-        price: 1289.45),
-    Driver(
-        name: 'Ogar Emmanuel',
-        rating: 4.7,
-        car: 'Toyota, Corolla',
-        price: 1289.45),
-    Driver(
-        name: 'Ogar Emmanuel',
-        rating: 4.7,
-        car: 'Toyota, Corolla',
-        price: 1289.45),
-    Driver(
-        name: 'Ogar Emmanuel',
-        rating: 4.7,
-        car: 'Toyota, Corolla',
-        price: 1289.45),
-  ];
+
+
+  @override
+  void initState() {
+    if(context.mounted){
+      context.read<AuthNotifier>().dashboard(context,
+          longitude: "6.99",
+          latitude: "4.66",
+          isActive: false,
+          firebaseToken: "dkhgjhgfeguyghuiegfguhufgih"
+      );
+      context.read<AuthNotifier>().getCurrentLocation(context);
+      context.read<AuthNotifier>().fetchAvailableDrivers(context, latitude: "333", longitude: "211121", radius: 50000);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(
-                  "assets/maps.png",
-                ),
-                fit: BoxFit.cover)),
-        child: Column(
-          children: [
-            // Search bar
-            Expanded(
-              flex: 2,
+    return Consumer<AuthNotifier>(
+      builder: (context, AuthNotifier auth, child) =>
+       Scaffold(
+        body: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage(
+                    "assets/maps.png",
+                  ),
+                  fit: BoxFit.cover)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children:[
+            Container(
+              // height: MediaQuery.of(context).size.height * 0.5,
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              decoration: const BoxDecoration(color: AppColors.white),
               child: Column(
                 children: [
-                  const Gap(30),
-                  Container(
-                    height: 50,
-                    margin: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 16),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                    decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: TextField(
-                      decoration: const InputDecoration(
-                        hintText: 'Enter Destination',
-                      ),
-                      onChanged: (value) {
-                        // Filter drivers based on search query
-                      },
+                  Gap(15),
+                  TextFormField(
+                    onTap: () async{
+                      FocusScopeNode currentFocus = FocusScope.of(context);
+                      if (!currentFocus.hasPrimaryFocus &&
+                          currentFocus.focusedChild != null) {
+                        currentFocus.focusedChild?.unfocus();
+                      }
+                      final results = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
+                      );
+
+                      logger.d(results);
+
+                    },
+                    decoration: const InputDecoration(
+                      labelText: 'Where To',
+                      border: OutlineInputBorder(),
                     ),
+                  ),
+                  ListView.builder(
+                    itemCount: auth.drivers.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final driver = auth.drivers[index];
+                      return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          // ignore: deprecated_member_use
+                          splashColor: AppColors.grey.withOpacity(0.08),
+                          tileColor: AppColors.grey.withOpacity(0.08),
+                          leading: CircleAvatar(
+                            radius: 18,
+                            child: driver.profileImage == null || driver.profileImage == 'default.png' ?
+                            Icon(Icons.error_outline) :
+                            CachedNetworkImage(
+                              imageUrl: driver.profileImage ?? "",
+                              imageBuilder: (context, imageProvider) => Container(
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      image: imageProvider,
+                                      fit: BoxFit.cover,
+                                      colorFilter:
+                                      ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
+                                ),
+                              ),
+                              placeholder: (context, url) => CircularProgressIndicator(),
+                              errorWidget: (context, url, error) => Icon(Icons.error),
+                            ),
+                          ),
+                          title: Text("${driver.firstName ?? ""} ${driver.lastName ?? ""}"),
+                          subtitle:
+                              Text('${driver.amount ?? "NIL"}'),
+                          trailing: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 6, vertical: 3),
+                              decoration: BoxDecoration(
+                                  color: AppColors.primaryColor,
+                                  borderRadius: BorderRadius.circular(5)),
+                              child: const Text(
+                                "Book Now",
+                                style: TextStyle(color: AppColors.white),
+                              )));
+                    },
                   ),
                 ],
               ),
             ),
-            // List of drivers
-            Expanded(
-              flex: 2,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                decoration: const BoxDecoration(color: AppColors.white),
-                child: ListView.builder(
-                  itemCount: drivers.length,
-                  itemBuilder: (context, index) {
-                    final driver = drivers[index];
-                    return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        // ignore: deprecated_member_use
-                        splashColor: AppColors.grey.withOpacity(0.08),
-                        tileColor: AppColors.grey.withOpacity(0.08),
-                        leading: const CircleAvatar(),
-                        title: Text(driver.name),
-                        subtitle:
-                            Text('${driver.rating} stars | ${driver.car}'),
-                        trailing: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 3),
-                            decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                borderRadius: BorderRadius.circular(5)),
-                            child: const Text(
-                              "Book Now",
-                              style: TextStyle(color: AppColors.white),
-                            )));
-                  },
-                ),
-              ),
-            ),
-          ],
+          ]
+          ),
         ),
       ),
     );
