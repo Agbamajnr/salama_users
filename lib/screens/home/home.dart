@@ -30,16 +30,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    if(context.mounted){
+    if (context.mounted) {
       context.read<AuthNotifier>().dashboard(context,
           longitude: "6.99",
           latitude: "4.66",
           isActive: false,
-          firebaseToken: "dkhgjhgfeguyghuiegfguhufgih"
-      );
+          firebaseToken: "dkhgjhgfeguyghuiegfguhufgih");
       context.read<AuthNotifier>().getCurrentLocation(context);
       context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
-
     }
     super.initState();
   }

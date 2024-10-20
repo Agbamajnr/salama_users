@@ -21,7 +21,6 @@ import 'package:salama_users/screens/auth/verify_user_screen.dart';
 import 'package:salama_users/screens/home/home.dart';
 import 'package:geolocator/geolocator.dart';
 
-
 class AuthNotifier extends ChangeNotifier {
   final _api = getIt<DioManager>();
   final _errorHandler = getIt<ErrorHandler>();
@@ -32,7 +31,7 @@ class AuthNotifier extends ChangeNotifier {
 
   List<AvailableDriver> _drivers = [];
 
-  List<tripsModel.Trip> _trips= [];
+  List<tripsModel.Trip> _trips = [];
 
   User? _user;
 
@@ -75,11 +74,11 @@ class AuthNotifier extends ChangeNotifier {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => HomeScreen()));
         Logger().d(_loginData);
-        if(_loginData?.token != null){
+        if (_loginData?.token != null) {
           _db.saveToken(_loginData?.token ?? "");
         }
 
-        if(_loginData?.user != null){
+        if (_loginData?.user != null) {
           _user = _loginData?.user;
           final user = User.fromJson(response.data['data']['user']);
           _db.saveUser(user);
@@ -104,17 +103,14 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> register(
-    BuildContext context, RegisterDto payload) async {
+  Future<void> register(BuildContext context, RegisterDto payload) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners(); // Notify listeners to update UI
 
     try {
-      Response response = await _api.dio.post(
-        '/taxi/auth/sign-up',
-        data: payload.toJson()
-      );
+      Response response =
+          await _api.dio.post('/taxi/auth/sign-up', data: payload.toJson());
 
       if (response.statusCode == 201) {
         _db.getToken();
@@ -251,8 +247,7 @@ class AuthNotifier extends ChangeNotifier {
     await Navigator.pushNamedAndRemoveUntil(context, Routes.login, predicate);
   }
 
-  Future<void> fetchAccount(
-      BuildContext context) async {
+  Future<void> fetchAccount(BuildContext context) async {
     _isLoading = true;
     _errorMessage = null;
 
@@ -291,14 +286,13 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-
   Future<void> dashboard(
-      BuildContext context, {
-        required String longitude,
-        required String latitude,
-        required bool isActive,
-        required String firebaseToken,
-      }) async {
+    BuildContext context, {
+    required String longitude,
+    required String latitude,
+    required bool isActive,
+    required String firebaseToken,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     try {
@@ -335,29 +329,26 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAvailableDrivers(
-      BuildContext context, {
-       required int  radius,
-        required String latitude,
-        required String longitude
-        // required d
+  Future<void> fetchAvailableDrivers(BuildContext context,
+      {required int radius, required String latitude, required String longitude
+      // required d
       }) async {
     _isLoading = true;
     _errorMessage = null;
-
 
     try {
       logger.d(lng);
       logger.d(lat);
       Response response = await _api.dio.get(
           '/taxi/users/available/drivers?lat=333&rad=5000&lon=211121'
-        // '/taxi/users/available/drivers?lat=${latitude}&rad=${radius}&lon=${longitude}'
-      );
+          // '/taxi/users/available/drivers?lat=${latitude}&rad=${radius}&lon=${longitude}'
+          );
 
       if (response.statusCode == 200) {
         logger.w(response.data);
         final List<dynamic> data = response.data['data'];
-        final List<AvailableDriver> results = data.map((json) => AvailableDriver.fromJson(json)).toList();
+        final List<AvailableDriver> results =
+            data.map((json) => AvailableDriver.fromJson(json)).toList();
         _drivers = results;
         _errorMessage = null;
         notifyListeners();
@@ -379,7 +370,6 @@ class AuthNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
-
 
   void getCurrentLocation(BuildContext context) async {
     final hasPermission = await _handleLocationPermission(context);
@@ -413,7 +403,8 @@ class AuthNotifier extends ChangeNotifier {
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Location services are disabled. Please enable the services')));
+          content: Text(
+              'Location services are disabled. Please enable the services')));
       return false;
     }
     permission = await Geolocator.checkPermission();
@@ -427,24 +418,27 @@ class AuthNotifier extends ChangeNotifier {
     }
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Location permissions are permanently denied, we cannot request permissions.')));
+          content: Text(
+              'Location permissions are permanently denied, we cannot request permissions.')));
       return false;
     }
     return true;
   }
 
   Future<void> fetchAddressToCoordinates(
-      BuildContext context, {
-        required String longitude,
-        required String latitude,
-        required String radius,
-        required String address,
-      }) async {
+    BuildContext context, {
+    required String longitude,
+    required String latitude,
+    required String radius,
+    required String address,
+  }) async {
     _isLoading = true;
     _errorMessage = null;
     try {
       logger.w("running data");
-      Response response = await _api.dio.get('/taxi/location/address?longitude=212331&latitude=3.1211&radius=50000&address=diamond hill',);
+      Response response = await _api.dio.get(
+        '/taxi/location/address?longitude=212331&latitude=3.1211&radius=50000&address=diamond hill',
+      );
 
       if (response.statusCode == 200) {
         logger.d(response.data);
@@ -475,10 +469,9 @@ class AuthNotifier extends ChangeNotifier {
     notifyListeners(); // Notify listeners to update UI
 
     try {
-      Response response = await _api.dio.post(
-        '/taxi/booking',
-        data: payload.toJson()
-      );
+      logger.w(payload);
+      Response response =
+          await _api.dio.post('/taxi/booking', data: payload.toJson());
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         logger.d(response.data);
@@ -505,28 +498,26 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-
   Future<void> fetchAllTrips(
-      BuildContext context, {
-        required int  skip,
-        required int  limit,
-        // required d
-      }) async {
+    BuildContext context, {
+    required int skip,
+    required int limit,
+    // required d
+  }) async {
     _isLoading = true;
     _errorMessage = null;
-
 
     try {
       logger.d(lng);
       logger.d(lat);
-      Response response = await _api.dio.get(
-          '/taxi/booking?skip=${skip}&limit=${limit}'
-      );
+      Response response =
+          await _api.dio.get('/taxi/booking?skip=${skip}&limit=${limit}');
 
       if (response.statusCode == 200) {
         logger.w(response.data);
         final List<dynamic> data = response.data['data'];
-        final List<tripsModel.Trip> results = data.map((json) => tripsModel.Trip.fromJson(json)).toList();
+        final List<tripsModel.Trip> results =
+            data.map((json) => tripsModel.Trip.fromJson(json)).toList();
         _trips = results;
         _errorMessage = null;
         notifyListeners();
@@ -549,17 +540,14 @@ class AuthNotifier extends ChangeNotifier {
     }
   }
 
-  Future<void> updateUser(
-      BuildContext context, UpdateUserDto payload) async {
+  Future<void> updateUser(BuildContext context, UpdateUserDto payload) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners(); // Notify listeners to update UI
 
     try {
-      Response response = await _api.dio.put(
-          '/taxi/users',
-          data: payload.toJson()
-      );
+      Response response =
+          await _api.dio.put('/taxi/users', data: payload.toJson());
 
       if (response.statusCode == 200 || response.statusCode == 200) {
         Logger().d(response.data);
@@ -583,6 +571,4 @@ class AuthNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-
 }

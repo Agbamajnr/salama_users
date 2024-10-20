@@ -1,15 +1,15 @@
 class BookRideDto {
-  BookRideDto({
-    required this.driverId,
-    required this.riderToLong,
-    required this.riderToLat,
-    required this.riderFromLong,
-    required this.driverLongitude,
-    required this.driverLatitude,
-    required this.riderFromAddress,
-    required this.riderToAddress,
-    required this.amount,
-  });
+  BookRideDto(
+      {required this.driverId,
+      required this.riderToLong,
+      required this.riderToLat,
+      required this.riderFromLong,
+      required this.driverLongitude,
+      required this.driverLatitude,
+      required this.riderFromAddress,
+      required this.riderToAddress,
+      required this.amount,
+      required this.riderFromLat});
 
   final String? driverId;
   final double? riderToLong;
@@ -19,36 +19,38 @@ class BookRideDto {
   final double? driverLatitude;
   final String? riderFromAddress;
   final String? riderToAddress;
+  final double? riderFromLat;
   final dynamic amount;
 
-  factory BookRideDto.fromJson(Map<String, dynamic> json){
+  factory BookRideDto.fromJson(Map<String, dynamic> json) {
     return BookRideDto(
-      driverId: json["driverId"],
-      riderToLong: json["riderToLong"],
-      riderToLat: json["riderToLat"],
-      riderFromLong: json["riderFromLong"],
-      driverLongitude: json["driverLongitude"],
-      driverLatitude: json["driverLatitude"],
-      riderFromAddress: json["riderFromAddress"],
-      riderToAddress: json["riderToAddress"],
-      amount: json["amount"],
-    );
+        driverId: json["driverId"],
+        riderToLong: json["riderToLong"],
+        riderToLat: json["riderToLat"],
+        riderFromLong: json["riderFromLong"],
+        driverLongitude: json["driverLongitude"],
+        driverLatitude: json["driverLatitude"],
+        riderFromAddress: json["riderFromAddress"],
+        riderToAddress: json["riderToAddress"],
+        amount: json["amount"],
+        riderFromLat: json["riderFromLat"]);
   }
 
   Map<String, dynamic> toJson() => {
-    "driverId": driverId,
-    "riderToLong": riderToLong,
-    "riderToLat": riderToLat,
-    "riderFromLong": riderFromLong,
-    "driverLongitude": driverLongitude,
-    "driverLatitude": driverLatitude,
-    "riderFromAddress": riderFromAddress,
-    "riderToAddress": riderToAddress,
-    "amount": amount,
-  };
+        "driverId": driverId,
+        "riderToLong": riderToLong,
+        "riderToLat": riderToLat,
+        "riderFromLong": riderFromLong,
+        "driverLongitude": driverLongitude,
+        "driverLatitude": driverLatitude,
+        "riderFromAddress": riderFromAddress,
+        "riderToAddress": riderToAddress,
+        "amount": amount,
+        "riderFromLat": riderFromLat
+      };
 
   @override
-  String toString(){
-    return "$driverId, $riderToLong, $riderToLat, $riderFromLong, $driverLongitude, $driverLatitude, $riderFromAddress, $riderToAddress, $amount, ";
+  String toString() {
+    return "$driverId, $riderToLong, $riderToLat, $riderFromLong, $driverLongitude, $driverLatitude, $riderFromAddress, $riderToAddress, $amount, $riderFromLat ";
   }
 }

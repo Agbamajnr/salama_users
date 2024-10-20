@@ -24,7 +24,10 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   const Text(
                     "Profile",
-                    style: TextStyle(fontSize: 25),
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold),
                   ),
                   _buildProfileInfo(auth.user!),
                   const SizedBox(height: 10),
@@ -56,23 +59,25 @@ class ProfileScreen extends StatelessWidget {
             CircleAvatar(
               radius: 30,
               backgroundColor: AppColors.skyBlue,
-              child: user.profileImage == null || user.profileImage == 'default.png' ?
-                  Icon(Icons.error_outline) :
-              CachedNetworkImage(
-                imageUrl: user.profileImage ?? "",
-                imageBuilder: (context, imageProvider) => Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                        // colorFilter:
-                        // ColorFilter.mode(Colors.red, BlendMode.colorBurn)
+              child: user.profileImage == null ||
+                      user.profileImage == 'default.png'
+                  ? Icon(Icons.error_outline)
+                  : CachedNetworkImage(
+                      imageUrl: user.profileImage ?? "",
+                      imageBuilder: (context, imageProvider) => Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: imageProvider,
+                            fit: BoxFit.cover,
+                            // colorFilter:
+                            // ColorFilter.mode(Colors.red, BlendMode.colorBurn)
+                          ),
+                        ),
+                      ),
+                      placeholder: (context, url) =>
+                          CircularProgressIndicator(),
+                      errorWidget: (context, url, error) => Icon(Icons.error),
                     ),
-                  ),
-                ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Icon(Icons.error),
-              ),
             ),
             SizedBox(width: 12),
             Column(
@@ -89,8 +94,7 @@ class ProfileScreen extends StatelessWidget {
                     Text('5.0 Rating'),
                   ],
                 ),
-                Text('${user.phone}',
-                    style: TextStyle(color: Colors.black54)),
+                Text('${user.phone}', style: TextStyle(color: Colors.black54)),
                 Text('${user.email ?? ""}',
                     style: TextStyle(color: Colors.black54)),
               ],
@@ -104,28 +108,29 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildProfileOptions(BuildContext context, dynamic user) {
     return Column(
       children: [
-        _buildListTile(context, Icons.person, 'Personal Info', (){
+        _buildListTile(context, Icons.person, 'Personal Info', () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ProfileUpdateScreen()),
+            MaterialPageRoute(
+                builder: (context) => const ProfileUpdateScreen()),
           );
         }),
-        _buildListTile(context, Icons.lock, 'Login & Security', (){}),
-        _buildListTile(context, Icons.privacy_tip, 'Privacy', (){}),
-        _buildListTile(context, Icons.info_outline, 'About', (){
+        _buildListTile(context, Icons.lock, 'Login & Security', () {}),
+        _buildListTile(context, Icons.privacy_tip, 'Privacy', () {}),
+        _buildListTile(context, Icons.info_outline, 'About', () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  AboutUsPage()),
+            MaterialPageRoute(builder: (context) => AboutUsPage()),
           );
         }),
-        _buildListTile(context, Icons.support_agent, 'Support', (){}),
+        _buildListTile(context, Icons.support_agent, 'Support', () {}),
       ],
     );
   }
 
-  Widget _buildListTile(BuildContext context, IconData icon, String title, VoidCallback onTap) {
+  Widget _buildListTile(
+      BuildContext context, IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-
       leading: CircleAvatar(
         backgroundColor: AppColors.primaryColor.withOpacity(0.6),
         child: Icon(icon, color: AppColors.white),
@@ -164,7 +169,7 @@ class ProfileScreen extends StatelessWidget {
           title: const Text('Delete Account',
               style: TextStyle(color: AppColors.background, fontSize: 16)),
           // trailing:
-              // const Icon(Icons.arrow_forward_ios, color: AppColors.background),
+          // const Icon(Icons.arrow_forward_ios, color: AppColors.background),
           onTap: () {
             // Handle delete account logic here
           },
