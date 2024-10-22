@@ -13,6 +13,7 @@ import 'package:salama_users/data/models/book_ride_dto.dart';
 import 'package:salama_users/data/models/booking_response.dart';
 import 'package:salama_users/data/models/login_data.model.dart';
 import 'package:salama_users/data/models/register_dto.dart';
+import 'package:salama_users/data/models/trip_report_model.dart';
 import 'package:salama_users/data/models/trips_model.dart' as tripsModel;
 import 'package:salama_users/data/models/update_user_dto.dart';
 import 'package:salama_users/locator.dart';
@@ -20,6 +21,8 @@ import 'package:salama_users/routes/router_names.dart';
 import 'package:salama_users/screens/auth/verify_user_screen.dart';
 import 'package:salama_users/screens/home/home.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:salama_users/screens/home/on_booking_screen.dart';
+import 'package:salama_users/screens/home/single-trip.dart';
 
 class AuthNotifier extends ChangeNotifier {
   final _api = getIt<DioManager>();
@@ -31,6 +34,8 @@ class AuthNotifier extends ChangeNotifier {
 
   List<AvailableDriver> _drivers = [];
 
+  List<TripReport> _tripReport = [];
+
   List<tripsModel.Trip> _trips = [];
 
   User? _user;
@@ -41,6 +46,7 @@ class AuthNotifier extends ChangeNotifier {
   User? get user => _user;
   List<AvailableDriver> get drivers => _drivers;
   List<tripsModel.Trip> get trips => _trips;
+  List<TripReport> get tripReport => _tripReport;
   double? _lat;
   double? _lng;
   double? get lat => _lat;
@@ -384,14 +390,8 @@ class AuthNotifier extends ChangeNotifier {
       logger.d(position.longitude);
       logger.d(position.latitude);
       notifyListeners();
-      // setState(() {
-      //   _locationMessage = 'Latitude: ${position.latitude}, Longitude: ${position.longitude}';
-      // });
     } catch (e) {
       notifyListeners();
-      // setState(() {
-      //   _locationMessage = "Error: ${e.toString()}";
-      // });
     }
     notifyListeners();
   }
@@ -476,6 +476,27 @@ class AuthNotifier extends ChangeNotifier {
       if (response.statusCode == 200 || response.statusCode == 201) {
         logger.d(response.data);
         final data = BookingResponse.fromJson(response.data);
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => OnBookingScreen(
+                trip: tripsModel.Trip(
+                    id: data.data?.id,
+                    riderId: data.data?.riderId,
+                    driverId: data.data?.riderId,
+                    riderFromAddress: data.data?.riderFromAddress
+                , riderToAddress: data.data?.riderToAddress,
+                    riderToLong: data.data?.riderToLong,
+                    riderFromLong: data.data?.riderFromLong,
+                    rideStatus: "BOOKING",
+                    driverLongitude: data.data?.driverLongitude,
+                    amount: data.data?.amount,
+                    driverLatitude: data.data?.driverLatitude,
+                    startTime: null,
+                    endTime: null,
+                    createdAt: null,
+                    updatedAt: null,
+                    user: null,
+                    driver: null
+                ))));
 
         return data;
         _errorMessage = null;
@@ -504,6 +525,7 @@ class AuthNotifier extends ChangeNotifier {
     required int limit,
     // required d
   }) async {
+    logger.d('fetching all trips');
     _isLoading = true;
     _errorMessage = null;
 
@@ -511,11 +533,11 @@ class AuthNotifier extends ChangeNotifier {
       logger.d(lng);
       logger.d(lat);
       Response response =
-          await _api.dio.get('/taxi/booking?skip=${skip}&limit=${limit}');
+          await _api.dio.get('/taxi/booking');
 
       if (response.statusCode == 200) {
         logger.w(response.data);
-        final List<dynamic> data = response.data['data'];
+        final List<dynamic> data = response.data['data']['rows'];
         final List<tripsModel.Trip> results =
             data.map((json) => tripsModel.Trip.fromJson(json)).toList();
         _trips = results;
@@ -543,7 +565,7 @@ class AuthNotifier extends ChangeNotifier {
   Future<void> updateUser(BuildContext context, UpdateUserDto payload) async {
     _isLoading = true;
     _errorMessage = null;
-    notifyListeners(); // Notify listeners to update UI
+    notifyListeners();
 
     try {
       Response response =
@@ -551,7 +573,9 @@ class AuthNotifier extends ChangeNotifier {
 
       if (response.statusCode == 200 || response.statusCode == 200) {
         Logger().d(response.data);
-        await fetchAccount(context);
+        final user = User.fromJson(response.data['data']);
+        _user = user;
+        _db.saveUser(user);
         _errorMessage = null;
       } else {
         _errorMessage = 'Failed to update';
@@ -571,4 +595,74 @@ class AuthNotifier extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> reportTrip(BuildContext context, String tripId, String message) async {
+      _isLoading = true;
+      notifyListeners();
+    try {
+      Response response =
+      await _api.dio.post('/taxi/booking/trip/report', data: {
+        "tripId": tripId,
+        "message": message
+      });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+
+      } else {
+      }
+    } on DioException catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } finally {
+        _isLoading = false;
+        notifyListeners();
+    }
+  }
+
+
+  Future<void> fetchTripReports(BuildContext context) async {
+    _isLoading = true;
+    _errorMessage = null;
+
+    try {
+      logger.d(lng);
+      logger.d(lat);
+      Response response = await _api.dio.get(
+          '/taxi/booking/trip/report'
+      );
+
+      if (response.statusCode == 200) {
+        logger.w(response.data);
+        final List<dynamic> data = response.data['data'];
+        final List<TripReport> results =
+        data.map((json) => TripReport.fromJson(json)).toList();
+        _tripReport = results;
+        _errorMessage = null;
+        notifyListeners();
+      } else {
+        _errorMessage = 'Failed to fetch reports';
+      }
+    } on DioException catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
 }

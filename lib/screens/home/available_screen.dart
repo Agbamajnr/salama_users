@@ -276,14 +276,6 @@ class _AvailableScreenState extends State<AvailableScreen> {
                             style: TextStyle(fontSize: 16)),
                       ],
                     ),
-                    // SizedBox(height: 10),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Text('Fare:', style: TextStyle(fontSize: 16)),
-                    //     Text('\N', style: TextStyle(fontSize: 16)),
-                    //   ],
-                    // ),
                     SizedBox(height: 30),
                     BusyButton(
                         title: "Proceed to book",

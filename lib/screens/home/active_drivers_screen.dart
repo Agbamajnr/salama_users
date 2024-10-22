@@ -56,70 +56,99 @@ class _NearbyDriversScreenState extends State<NearbyDriversScreen> {
               child: Column(
                 children: [
                   Gap(15),
-                  TextFormField(
-                    onTap: () async{
-                      FocusScopeNode currentFocus = FocusScope.of(context);
-                      if (!currentFocus.hasPrimaryFocus &&
-                          currentFocus.focusedChild != null) {
-                        currentFocus.focusedChild?.unfocus();
-                      }
-                      final results = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
-                      );
-
-                      logger.d(results);
+                  InkWell(
+                    onTap: (){
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
+                          );
 
                     },
-                    decoration: const InputDecoration(
-                      labelText: 'Where To',
-                      border: OutlineInputBorder(),
+                    child: Container(
+
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.grey.withOpacity(0.9)),
+                          borderRadius: BorderRadius.circular(6)
+                      ),
+                      child: Text(
+                        "Where To",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.grey.withOpacity(0.9)
+                        ),
+                      ),
                     ),
                   ),
-                  ListView.builder(
-                    itemCount: auth.drivers.length,
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      final driver = auth.drivers[index];
-                      return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          // ignore: deprecated_member_use
-                          splashColor: AppColors.grey.withOpacity(0.08),
-                          tileColor: AppColors.grey.withOpacity(0.08),
-                          leading: CircleAvatar(
-                            radius: 18,
-                            child: driver.profileImage == null || driver.profileImage == 'default.png' ?
-                            Icon(Icons.error_outline) :
-                            CachedNetworkImage(
-                              imageUrl: driver.profileImage ?? "",
-                              imageBuilder: (context, imageProvider) => Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      image: imageProvider,
-                                      fit: BoxFit.cover,
-                                      colorFilter:
-                                      ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
-                                ),
-                              ),
-                              placeholder: (context, url) => CircularProgressIndicator(),
-                              errorWidget: (context, url, error) => Icon(Icons.error),
-                            ),
-                          ),
-                          title: Text("${driver.firstName ?? ""} ${driver.lastName ?? ""}"),
-                          subtitle:
-                              Text('${driver.amount ?? "NIL"}'),
-                          trailing: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 3),
-                              decoration: BoxDecoration(
-                                  color: AppColors.primaryColor,
-                                  borderRadius: BorderRadius.circular(5)),
-                              child: const Text(
-                                "Book Now",
-                                style: TextStyle(color: AppColors.white),
-                              )));
-                    },
-                  ),
+
+
+                  // TextFormField(
+                  //   onTap: () async{
+                  //     FocusScopeNode currentFocus = FocusScope.of(context);
+                  //     if (!currentFocus.hasPrimaryFocus &&
+                  //         currentFocus.focusedChild != null) {
+                  //       currentFocus.focusedChild?.unfocus();
+                  //     }
+                  //     final results = await Navigator.push(
+                  //       context,
+                  //       MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
+                  //     );
+                  //
+                  //     logger.d(results);
+                  //
+                  //   },
+                  //   decoration: const InputDecoration(
+                  //     labelText: 'Where To',
+                  //     border: OutlineInputBorder(),
+                  //   ),
+                  // ),
+                  Gap(20),
+                  // ListView.builder(
+                  //   itemCount: auth.drivers.length,
+                  //   shrinkWrap: true,
+                  //   itemBuilder: (context, index) {
+                  //     final driver = auth.drivers[index];
+                  //     return ListTile(
+                  //         contentPadding: EdgeInsets.zero,
+                  //         // ignore: deprecated_member_use
+                  //         splashColor: AppColors.grey.withOpacity(0.08),
+                  //         tileColor: AppColors.grey.withOpacity(0.08),
+                  //         leading: CircleAvatar(
+                  //           radius: 18,
+                  //           child: driver.profileImage == null || driver.profileImage == 'default.png' ?
+                  //           Icon(Icons.error_outline) :
+                  //           CachedNetworkImage(
+                  //             imageUrl: driver.profileImage ?? "",
+                  //             imageBuilder: (context, imageProvider) => Container(
+                  //               decoration: BoxDecoration(
+                  //                 image: DecorationImage(
+                  //                     image: imageProvider,
+                  //                     fit: BoxFit.cover,
+                  //                     colorFilter:
+                  //                     ColorFilter.mode(Colors.red, BlendMode.colorBurn)),
+                  //               ),
+                  //             ),
+                  //             placeholder: (context, url) => CircularProgressIndicator(),
+                  //             errorWidget: (context, url, error) => Icon(Icons.error),
+                  //           ),
+                  //         ),
+                  //         title: Text("${driver.firstName ?? ""} ${driver.lastName ?? ""}"),
+                  //         subtitle:
+                  //             Text('${driver.amount ?? "NIL"}'),
+                  //         trailing: Container(
+                  //             padding: const EdgeInsets.symmetric(
+                  //                 horizontal: 6, vertical: 3),
+                  //             decoration: BoxDecoration(
+                  //                 color: AppColors.primaryColor,
+                  //                 borderRadius: BorderRadius.circular(5)),
+                  //             child: const Text(
+                  //               "Book Now",
+                  //               style: TextStyle(color: AppColors.white),
+                  //             )));
+                  //   },
+                  // ),
                 ],
               ),
             ),

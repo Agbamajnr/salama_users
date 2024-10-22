@@ -5,6 +5,8 @@ import 'package:salama_users/app/notifiers/auth.notifier.dart';
 import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/trips_model.dart';
 import 'package:salama_users/screens/home/address_search_screen.dart';
+import 'package:salama_users/screens/home/single-trip.dart';
+import 'package:salama_users/widgets/busy_button.dart';
 
 class RideHistoryScreen extends StatefulWidget {
   @override
@@ -103,7 +105,7 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
           onTap: (){
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
+              MaterialPageRoute(builder: (context) => SingleTrip(trip: ride)),
             );
           },
           leading: CircleAvatar(
@@ -116,35 +118,108 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('${ride.amount}',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 5),
-              Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                  decoration: BoxDecoration(
-                      color: AppColors.primaryColor,
-                      borderRadius: BorderRadius.circular(10)),
-                  child: const Text(
-                    "Report",
-                    style: TextStyle(color: AppColors.white),
-                  ))
+              // Text('${ride.amount}',
+              //     style: const TextStyle(fontWeight: FontWeight.bold)),
+              // const SizedBox(height: 5),
+              ride.rideStatus != BookingStatus.COMPLETED ?  Icon(Icons.arrow_forward_ios_outlined, size: 16,) : InkWell(
+                onTap: (){
+                  if(ride.id == null)return;
+                  _showTripReport(context, ride.id!);
+                },
+                child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                    decoration: BoxDecoration(
+                        color: ride.rideStatus == BookingStatus.COMPLETED ? AppColors.primaryColor: Colors.red,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: Text(
+                      ride.rideStatus == BookingStatus.COMPLETED ? "Report" : "Cancel",
+                      style: TextStyle(color: AppColors.white),
+                    ))
+
+                ,
+              )
             ],
           ),
         ),
       ),
     );
   }
+
+  final _reportMessageController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  void _showTripReport(BuildContext context, String tripId) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
+      ),
+      isScrollControlled: true,
+      // isDismissible: context.read<AuthNotifier>().isLoading,
+      builder: (BuildContext context) {
+        return Consumer<AuthNotifier>(
+          builder: (context, AuthNotifier auth, child) => Wrap(children: [
+            Padding(
+             padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min, // Adjusts size based on content
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Driver Details
+                      Center(
+                        child: Text(
+                          'Report Trip',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      SizedBox(height: 15),
+                      TextFormField(
+                        controller: _reportMessageController,
+                        maxLines: 3,
+                        validator: (value){
+                          if(value == null)return "message is empty";
+                          if(value.isEmpty){
+                            return "Add a message";
+                          }
+                          if(value.length > 200){
+                            return "length cannot be more than 200 characters";
+                          }
+
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          labelText: 'Message',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+
+                      SizedBox(height: 30),
+                      BusyButton(
+                          title: "Report",
+                          isLoading: auth.isLoading,
+                          onTap: () {
+                            if(_formKey.currentState!.validate()){
+                              auth.reportTrip(context, tripId, _reportMessageController.text.trim());
+                              _reportMessageController.clear();
+                            }
+
+                          })
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ]),
+        );
+      },
+    );
+  }
 }
 
-class RideHistoryItem {
-  final String date;
-  final String address;
-  final String amount;
-
-  RideHistoryItem({
-    required this.date,
-    required this.address,
-    required this.amount,
-  });
-}

@@ -6,6 +6,7 @@ import 'package:salama_users/app/utils/logger.dart';
 import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/login_data.model.dart';
 import 'package:salama_users/screens/home/about_page.dart';
+import 'package:salama_users/screens/home/report_screen.dart';
 import 'package:salama_users/screens/home/update_profile.dart';
 import 'package:salama_users/widgets/custom_single_scroll_view.dart';
 
@@ -13,7 +14,8 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
-      builder: (context, AuthNotifier auth, child) => Scaffold(
+      builder: (context, AuthNotifier auth, child) =>
+          Scaffold(
         backgroundColor: AppColors.white,
         body: SafeArea(
           child: CustomSingleChildScrollView(
@@ -87,13 +89,6 @@ class ProfileScreen extends StatelessWidget {
                   '${user.firstName} ${user.lastName} ${user.middleName ?? ""}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                Row(
-                  children: [
-                    Icon(Icons.star, color: Colors.orange, size: 16),
-                    SizedBox(width: 4),
-                    Text('5.0 Rating'),
-                  ],
-                ),
                 Text('${user.phone}', style: TextStyle(color: Colors.black54)),
                 Text('${user.email ?? ""}',
                     style: TextStyle(color: Colors.black54)),
@@ -115,7 +110,13 @@ class ProfileScreen extends StatelessWidget {
                 builder: (context) => const ProfileUpdateScreen()),
           );
         }),
-        _buildListTile(context, Icons.lock, 'Login & Security', () {}),
+        _buildListTile(context, Icons.lock, 'Reports', () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ReportsScreen()),
+          );
+        }),
         _buildListTile(context, Icons.privacy_tip, 'Privacy', () {}),
         _buildListTile(context, Icons.info_outline, 'About', () {
           Navigator.push(

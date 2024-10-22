@@ -81,7 +81,9 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
     return AbsorbPointer(
       absorbing: isLoading,
       child: Scaffold(
+        backgroundColor: AppColors.white,
         appBar: AppBar(
+          backgroundColor: AppColors.white,
           title: Text('Search Screen'),
         ),
         body: SingleChildScrollView(

@@ -15,8 +15,8 @@ class Trip {
     required this.endTime,
     required this.createdAt,
     required this.updatedAt,
-    this.user,
-    this.driver,
+    required this.user,
+    required this.driver,
   });
 
   final String? id;
@@ -24,12 +24,12 @@ class Trip {
   final String? driverId;
   final String? riderFromAddress;
   final String? riderToAddress;
-  final double? riderToLong;
-  final double? riderFromLong;
+  final dynamic? riderToLong;
+  final dynamic? riderFromLong;
   final String? rideStatus;
-  final double? driverLongitude;
-  final int? amount;
-  final int? driverLatitude;
+  final dynamic? driverLongitude;
+  final dynamic? amount;
+  final dynamic? driverLatitude;
   final dynamic startTime;
   final dynamic endTime;
   final DateTime? createdAt;

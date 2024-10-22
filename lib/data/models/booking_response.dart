@@ -35,6 +35,7 @@ class BookingResponse {
 
 class Data {
   Data({
+    required this.id,
     required this.driverId,
     required this.riderToLong,
     required this.riderToLat,
@@ -48,20 +49,22 @@ class Data {
     required this.tripId,
   });
 
+  final String? id;
   final String? driverId;
-  final double? riderToLong;
-  final double? riderToLat;
-  final double? riderFromLong;
-  final double? driverLongitude;
-  final int? driverLatitude;
+  final dynamic? riderToLong;
+  final dynamic? riderToLat;
+  final dynamic? riderFromLong;
+  final dynamic? driverLongitude;
+  final dynamic? driverLatitude;
   final String? riderFromAddress;
   final String? riderToAddress;
-  final int? amount;
+  final dynamic? amount;
   final String? riderId;
   final String? tripId;
 
   factory Data.fromJson(Map<String, dynamic> json){
     return Data(
+      id: json["id"],
       driverId: json["driverId"],
       riderToLong: json["riderToLong"],
       riderToLat: json["riderToLat"],
@@ -77,6 +80,7 @@ class Data {
   }
 
   Map<String, dynamic> toJson() => {
+    "id": id,
     "driverId": driverId,
     "riderToLong": riderToLong,
     "riderToLat": riderToLat,
@@ -92,6 +96,6 @@ class Data {
 
   @override
   String toString(){
-    return "$driverId, $riderToLong, $riderToLat, $riderFromLong, $driverLongitude, $driverLatitude, $riderFromAddress, $riderToAddress, $amount, $riderId, $tripId, ";
+    return "$id, $driverId, $riderToLong, $riderToLat, $riderFromLong, $driverLongitude, $driverLatitude, $riderFromAddress, $riderToAddress, $amount, $riderId, $tripId, ";
   }
 }
