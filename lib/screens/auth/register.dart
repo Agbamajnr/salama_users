@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
+import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/register_dto.dart';
 import 'package:salama_users/widgets/busy_button.dart';
 
@@ -82,8 +83,10 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
       builder: (context, AuthNotifier auth, child) => Scaffold(
+        backgroundColor: AppColors.white,
         appBar: AppBar(
           title: Text('Register'),
+          centerTitle: true, 
         ),
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -91,7 +94,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  Text(
+                      "Enter your sign up credentials.",
+                    style: TextStyle(
+                      fontSize: 16
+                    ),
+                  ),
                   Gap(15),
                   // First Name
                   TextFormField(

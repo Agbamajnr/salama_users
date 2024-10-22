@@ -18,6 +18,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
 
   final _db = getIt<DBService>();
+  bool isLoadingUser = false;
   Future<void> runNavigate() async {
 
     if( await _db.getToken() == null){

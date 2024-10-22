@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
+import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/widgets/busy_button.dart';
 import 'package:salama_users/widgets/custom_single_scroll_view.dart';
 
@@ -38,6 +39,7 @@ class _VerifyotpScreenState extends State<VerifyotpScreen> {
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
       builder: (context, AuthNotifier auth, child) => Scaffold(
+        backgroundColor: AppColors.white,
         appBar: AppBar(
           title: const Text('Verify Otp'),
           automaticallyImplyLeading: false,

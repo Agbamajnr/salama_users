@@ -10,6 +10,7 @@ import 'package:salama_users/data/models/available_driver.model.dart';
 import 'package:salama_users/data/models/book_ride_dto.dart';
 import 'package:salama_users/widgets/busy_button.dart';
 
+
 class AvailableScreen extends StatefulWidget {
   AddressResponse userSelectedTo;
   AddressResponse userSelectedFrom;
@@ -36,6 +37,7 @@ class _AvailableScreenState extends State<AvailableScreen> {
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
       builder: (context, AuthNotifier auth, child) => Scaffold(
+        backgroundColor: AppColors.white,
         appBar: AppBar(
           title: Text("Available Drivers"),
           centerTitle: true,

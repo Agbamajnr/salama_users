@@ -31,6 +31,13 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             useMaterial3: true,
+              highlightColor: Colors.transparent,
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Color(0xffFFFFFF),
+                elevation: 0,
+                scrolledUnderElevation: 0,
+              ),
+            splashColor: Colors.transparent
           ),
           onGenerateRoute: generateRoute),
     );

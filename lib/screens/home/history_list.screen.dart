@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
+import 'package:salama_users/app/utils/functions.dart';
 import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/trips_model.dart';
 import 'package:salama_users/screens/home/address_search_screen.dart';
@@ -113,8 +114,10 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
             child:
                 const Icon(Icons.directions_car, color: AppColors.primaryColor),
           ),
-          title: Text('${ride.riderToAddress}'),
-          subtitle: Text('${ride.createdAt}'),
+          title: Text('${ride.riderToAddress}', style: TextStyle(
+            fontWeight: FontWeight.w700
+          ),),
+          subtitle: Text('${Functions.getFormattedDate(ride.createdAt!)}'),
           trailing: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

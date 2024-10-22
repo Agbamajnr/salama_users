@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
+import 'package:easy_url_launcher/easy_url_launcher.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
@@ -245,7 +246,11 @@ class _OnBookingScreenState extends State<OnBookingScreen> {
 
                           title: Text("${_trip?.driver?.name}"),
                           subtitle: Text("${_trip?.driver?.phone}"),
-                          trailing: Icon(Icons.call),
+                          trailing: InkWell(
+                            onTap: () async{
+                              await EasyLauncher.call(number: "${_trip?.driver?.phone}");
+                            },
+                              child: Icon(Icons.call)),
                         ),
                         SizedBox(height: 10),
                         Text('Plate Number: ${_trip?.driver?.plateNo == null  ? "N/A" : _trip?.driver!.plateNo}'),

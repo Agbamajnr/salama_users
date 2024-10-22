@@ -117,6 +117,7 @@ class AuthNotifier extends ChangeNotifier {
     try {
       Response response =
           await _api.dio.post('/taxi/auth/sign-up', data: payload.toJson());
+      logger.d(response.data);
 
       if (response.statusCode == 201) {
         _db.getToken();
@@ -125,12 +126,12 @@ class AuthNotifier extends ChangeNotifier {
                   identiy: payload.email.toString(),
                   intent: "sign_otp",
                 )));
-        _loginData = response.data['data'];
-        if (_loginData?.token != null) {
-          _db.saveToken(_loginData!.token!);
-          _user = _loginData?.user;
-          _db.saveUser(_loginData!.user!);
-        }
+        // _loginData = response.data['data'];
+        // if (_loginData?.token != null) {
+          _db.saveToken(response.data['data']['token']);
+        //   _user = _loginData?.user;
+        //   _db.saveUser(_loginData!.user!);
+        // }
         Logger().d(_loginData);
         _errorMessage = null;
       } else {
@@ -660,6 +661,38 @@ class AuthNotifier extends ChangeNotifier {
       }
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteAccount(BuildContext context) async {
+
+    try {
+      logger.d(lng);
+      logger.d(lat);
+      Response response = await _api.dio.delete(
+          '/taxi/users/delete'
+      );
+
+      if (response.statusCode == 200) {
+        AppSnackbar.success(context, message: "Account deleted!");
+        await logout(context);
+        _errorMessage = null;
+        notifyListeners();
+      } else {
+        _errorMessage = 'Failed to delete user';
+      }
+    } on DioException catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context.mounted) {
+        AppSnackbar.error(context, message: error);
+      }
+    } finally {
       notifyListeners();
     }
   }
