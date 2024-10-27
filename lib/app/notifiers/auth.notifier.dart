@@ -38,6 +38,8 @@ class AuthNotifier extends ChangeNotifier {
 
   List<tripsModel.Trip> _trips = [];
 
+  tripsModel.Trip? _trip;
+
   User? _user;
 
   bool get isLoading => _isLoading;
@@ -46,6 +48,7 @@ class AuthNotifier extends ChangeNotifier {
   User? get user => _user;
   List<AvailableDriver> get drivers => _drivers;
   List<tripsModel.Trip> get trips => _trips;
+  tripsModel.Trip? get trip => _trip;
   List<TripReport> get tripReport => _tripReport;
   double? _lat;
   double? _lng;
@@ -666,7 +669,8 @@ class AuthNotifier extends ChangeNotifier {
   }
 
   Future<void> deleteAccount(BuildContext context) async {
-
+    _isLoading = true;
+     notifyListeners();
     try {
       logger.d(lng);
       logger.d(lat);
@@ -693,6 +697,42 @@ class AuthNotifier extends ChangeNotifier {
         AppSnackbar.error(context, message: error);
       }
     } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+
+  Future<void> fetchTrip(context, id)async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      logger.d(id);
+      Response response =
+      await _api.dio.get('/taxi/booking/${id}');
+
+      if (response.statusCode == 200) {
+        logger.w(response.data['data']);
+        if(response.data['data'] == null){
+
+        }else{
+          final result = tripsModel.Trip.fromJson(response.data['data']);
+          _trip = result;
+        }
+      } else {
+      }
+    } on DioException catch (e) {
+      var error = _errorHandler.handleError(e);
+      if (context!.mounted) {
+        AppSnackbar.error(context!, message: error);
+      }
+    } catch (e) {
+      // var error = _errorHandler.handleError(e);
+      if (context!.mounted) {
+        AppSnackbar.error(context!, message: "Unable to retrive trip");
+      }
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
 import 'package:salama_users/constants/colors.dart';
+import 'package:salama_users/firebase_hander.dart';
 import 'package:salama_users/screens/home/active_drivers_screen.dart';
 import 'package:salama_users/screens/home/history_list.screen.dart';
 import 'package:salama_users/screens/home/profile_screen.dart';
@@ -28,6 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  final messagingService = PushNotificationService();
+
   @override
   void initState() {
     if (context.mounted) {
@@ -38,6 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
           firebaseToken: "dkhgjhgfeguyghuiegfguhufgih");
       context.read<AuthNotifier>().getCurrentLocation(context);
       context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
+
+      if(!mounted)return;
+      super.initState();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        messagingService.initialize(context);
+      });
     }
     super.initState();
   }
