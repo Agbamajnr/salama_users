@@ -13,7 +13,7 @@ class DioManager {
 
   DioManager(this.tokenProvider) {
     _dio = Dio(BaseOptions(
-      baseUrl: 'http://100.25.177.226',
+      baseUrl: 'http://api.salamadrive.com',
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $tokenProvider',
@@ -22,7 +22,7 @@ class DioManager {
     ));
 
     _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async{
+      onRequest: (options, handler) async {
         // Attach access token to headers
         final token = await _db.getToken();
         logger.d(token);

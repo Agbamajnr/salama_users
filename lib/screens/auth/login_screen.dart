@@ -51,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
       builder: (context, AuthNotifier auth, child) => Scaffold(
+        backgroundColor: AppColors.white,
         appBar: AppBar(
           title: const Text('Login'),
           automaticallyImplyLeading: false,
