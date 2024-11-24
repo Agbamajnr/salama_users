@@ -13,7 +13,7 @@ class DioManager {
 
   DioManager(this.tokenProvider) {
     _dio = Dio(BaseOptions(
-      baseUrl: 'http://api.salamadrive.com',
+      baseUrl: 'https://api.salamadrive.com',
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $tokenProvider',

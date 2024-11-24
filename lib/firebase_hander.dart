@@ -24,6 +24,7 @@ import 'firebase_options.dart';
 class FirebaseHandler {
   Future<void> init() async {
     await Firebase.initializeApp(
+      name: 'com.salama.users_app',
       options: DefaultFirebaseOptions.currentPlatform,
     );
 

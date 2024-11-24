@@ -13,7 +13,7 @@ class ApiService {
   }) async {
     try {
       Response response = await _api.dio.post(
-        '/login', // Endpoint for login
+        '/auth/login', // Endpoint for login
         data: {
           'identity': identity,
           'password': password,
