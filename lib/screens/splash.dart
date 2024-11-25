@@ -16,30 +16,26 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   final _db = getIt<DBService>();
   bool isLoadingUser = false;
   Future<void> runNavigate() async {
-
-    if( await _db.getToken() == null){
+    if (await _db.getToken() == null) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (context) => LoginScreen()),
-              (Route<dynamic> route) => true);
-    }else{
+          (Route<dynamic> route) => true);
+    } else {
       final user = context.read<AuthNotifier>();
       await context.read<AuthNotifier>().fetchAccount(context);
-      if(user.user != null){
+      if (user.user != null) {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => HomeScreen()),
-                (Route<dynamic> route) => true);
-      }else{
+            (Route<dynamic> route) => true);
+      } else {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => LoadingScreen()),
-                (Route<dynamic> route) => true);
+            (Route<dynamic> route) => true);
       }
-
     }
-
   }
 
   @override
