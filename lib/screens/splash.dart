@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
-    Future.delayed(const Duration(seconds: 3), runNavigate);
+    Future.delayed(const Duration(seconds: 1), runNavigate);
     super.initState();
   }
 

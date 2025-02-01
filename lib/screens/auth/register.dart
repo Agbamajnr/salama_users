@@ -12,10 +12,7 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  // Global key for the form
   final _formKey = GlobalKey<FormState>();
-
-  // Controllers for the form fields
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _middleNameController = TextEditingController();
@@ -23,8 +20,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _phoneController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
-  // Disposing controllers when done
   @override
   void dispose() {
     _firstNameController.dispose();
@@ -37,30 +35,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  // Function to handle registration logic
-  void _handleRegistration() {
-    if (_formKey.currentState!.validate()) {
-      // Registration logic can go here
-      String firstName = _firstNameController.text;
-      String lastName = _lastNameController.text;
-      String middleName = _middleNameController.text;
-      String email = _emailController.text;
-      String phone = _phoneController.text;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registered as $firstName $lastName')),
-      );
-
-      // Simulate registration success
-      print('First Name: $firstName');
-      print('Last Name: $lastName');
-      print('Middle Name: $middleName');
-      print('Email: $email');
-      print('Phone: $phone');
-    }
-  }
-
-  // Email validation
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter your email';
@@ -71,12 +45,33 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     return null;
   }
 
-  // Password match validation
   String? _validatePasswordMatch(String? value) {
     if (value != _passwordController.text) {
       return 'Passwords do not match';
     }
     return null;
+  }
+
+  Widget _buildTextField(
+      {required TextEditingController controller,
+        required String label,
+        bool obscureText = false,
+        TextInputType keyboardType = TextInputType.text,
+        String? Function(String?)? validator,
+        Widget? suffixIcon}) {
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+        filled: true,
+        fillColor: Colors.grey[100],
+        suffixIcon: suffixIcon,
+      ),
+      validator: validator,
+    );
   }
 
   @override
@@ -85,137 +80,84 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       builder: (context, AuthNotifier auth, child) => Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-          title: Text('Register'),
-          centerTitle: true, 
+          title: Text('Register', style: TextStyle(fontWeight: FontWeight.bold)),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          iconTheme: IconThemeData(color: Colors.black),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Text(
-                      "Enter your sign up credentials.",
-                    style: TextStyle(
-                      fontSize: 16
-                    ),
-                  ),
-                  Gap(15),
-                  // First Name
-                  TextFormField(
-                    controller: _firstNameController,
-                    decoration: InputDecoration(
-                      labelText: 'First Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your first name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Last Name
-                  TextFormField(
-                    controller: _lastNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Last Name',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your last name';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Middle Name
-                  TextFormField(
-                    controller: _middleNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Middle Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Email
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: _validateEmail,
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Phone
-                  TextFormField(
-                    controller: _phoneController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  SizedBox(height: 16.0),
-
-                  // Password
-                  TextFormField(
+                  Text("Enter your sign-up credentials.",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Gap(20),
+                  _buildTextField(controller: _firstNameController, label: 'First Name'),
+                  Gap(16),
+                  _buildTextField(controller: _lastNameController, label: 'Last Name'),
+                  Gap(16),
+                  _buildTextField(controller: _middleNameController, label: 'Middle Name'),
+                  Gap(16),
+                  _buildTextField(
+                      controller: _emailController,
+                      label: 'Email',
+                      keyboardType: TextInputType.emailAddress,
+                      validator: _validateEmail),
+                  Gap(16),
+                  _buildTextField(
+                      controller: _phoneController,
+                      label: 'Phone',
+                      keyboardType: TextInputType.phone),
+                  Gap(16),
+                  _buildTextField(
                     controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
+                    label: 'Password',
+                    obscureText: _obscurePassword,
+                    validator: (value) =>
+                    value!.isEmpty ? 'Please enter your password' : null,
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
                     ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
                   ),
-                  SizedBox(height: 16.0),
-
-                  // Confirm Password
-                  TextFormField(
+                  Gap(16),
+                  _buildTextField(
                     controller: _confirmPasswordController,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
+                    label: 'Confirm Password',
+                    obscureText: _obscureConfirmPassword,
                     validator: _validatePasswordMatch,
+                    suffixIcon: IconButton(
+                      icon: Icon(_obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility),
+                      onPressed: () {
+                        setState(() {
+                          _obscureConfirmPassword = !_obscureConfirmPassword;
+                        });
+                      },
+                    ),
                   ),
-                  SizedBox(height: 30.0),
-
-                  // Register Button
+                  Gap(30),
                   BusyButton(
-                    title: "Proceed",
+                    title: "Sign Up",
                     isLoading: auth.isLoading,
                     onTap: () async {
                       if (_formKey.currentState!.validate()) {
-                        FocusScopeNode currentFocus = FocusScope.of(context);
-                        if (!currentFocus.hasPrimaryFocus &&
-                            currentFocus.focusedChild != null) {
-                          currentFocus.focusedChild?.unfocus();
-                        }
-                        await auth.register(context,
-                            RegisterDto(
+                        FocusScope.of(context).unfocus();
+                        await auth.register(
+                          context,
+                          RegisterDto(
                             firstName: _firstNameController.text,
                             lastName: _lastNameController.text,
                             middleName: _middleNameController.text,
@@ -224,10 +166,27 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             email: _emailController.text,
                             password: _passwordController.text,
                             firebaseToken: "",
-                            rePassword: _confirmPasswordController.text));
+                            rePassword: _confirmPasswordController.text,
+                          ),
+                        );
                       }
                     },
-                  )
+                  ),
+                  Gap(20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Already have an account? "),
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: Text("Login",
+                            style: TextStyle(
+                                color: AppColors.primaryColor,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                  Gap(20),
                 ],
               ),
             ),

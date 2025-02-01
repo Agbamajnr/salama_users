@@ -61,6 +61,44 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418326186728:android:44c122b7ad225a6f16d75d",
+        "android_client_info": {
+          "package_name": "com.salama_driver.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbVGXFRFQlFMu8NKJ3hN0e4sjfkDCtlik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418326186728:android:e54f08e4a5c9afa616d75d",
+        "android_client_info": {
+          "package_name": "com.salamadrive.users"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbVGXFRFQlFMu8NKJ3hN0e4sjfkDCtlik"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

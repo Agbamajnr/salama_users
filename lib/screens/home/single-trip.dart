@@ -32,7 +32,6 @@ class SingleTrip extends StatefulWidget {
 
 class _SingleTripState extends State<SingleTrip> {
   bool _isLoading = false;
-
   Trip? _trip;
 
   final _api = getIt<DioManager>();
@@ -61,7 +60,7 @@ class _SingleTripState extends State<SingleTrip> {
             widget.trip = result;
           });
         }
-      } else {}
+      }
     } on DioException catch (e) {
       var error = _errorHandler.handleError(e);
       if (context.mounted) {
@@ -94,7 +93,7 @@ class _SingleTripState extends State<SingleTrip> {
         setState(() {
           _trip = Trip.fromJson(response.data['data']);
         });
-      } else {}
+      }
     } on DioException catch (e) {
       var error = _errorHandler.handleError(e);
       if (context.mounted) {
@@ -118,62 +117,50 @@ class _SingleTripState extends State<SingleTrip> {
     super.initState();
   }
 
-  var bookingStatus = "";
-
   String getBooking(status) {
     switch (status) {
       case BookingStatus.BOOKING:
-        bookingStatus = BookingStatus.BOOKING.toString();
-        return bookingStatus;
-        break;
-
+        return "BOOKING";
       case BookingStatus.DRIVER_ACCEPTED:
-        bookingStatus = "DRIVER ACCEPTED";
-        return bookingStatus;
-        break;
-
+        return "DRIVER ACCEPTED";
       case BookingStatus.DRIVING:
-        bookingStatus = "DRIVING";
-        return bookingStatus;
-        break;
-      // case BookingStatus.RIDER_CANCELLED:
-      //   bookingStatus = "COMPLETED";
-      //   break;
+        return "DRIVING";
       case BookingStatus.RIDER_CANCELLED:
-        bookingStatus = "RIDER CANCELLED";
-        return "RIDER_CANCELLED";
-        break;
+        return "RIDER CANCELLED";
       case BookingStatus.COMPLETED:
-        bookingStatus = "COMPLETED";
-        return bookingStatus;
+        return "COMPLETED";
       default:
         return status;
-        print(' invalid entry');
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.white,
-        title: Text('Ride Details'),
+        iconTheme: IconThemeData(
+          color: Colors.white
+        ),
+        backgroundColor: AppColors.primaryColor,
+        title: const Text(
+          'Ride Details',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
         actions: [
-          _trip?.rideStatus == BookingStatus.DRIVER_ACCEPTED
-              ? InkWell(
-                  onTap: () {
-                    // fetchTrip(widget.trip?.id);
-                  },
-                  child: Icon(Icons.call),
-                )
-              : InkWell(
-                  onTap: () {
-                    fetchTrip(widget.trip?.id);
-                  },
-                  child: Icon(Icons.refresh_outlined),
-                ),
-          Gap(10),
+          IconButton(
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            onPressed: () {
+              fetchTrip(widget.trip?.id);
+            },
+          ),
         ],
       ),
       body: Consumer<AuthNotifier>(
@@ -181,148 +168,228 @@ class _SingleTripState extends State<SingleTrip> {
           onRefresh: () {
             return fetchTrip(widget.trip?.id);
           },
-          child: _isLoading == true && _trip == null
-              ? Center(child: CircularProgressIndicator())
+          child: _isLoading && _trip == null
+              ? const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primaryColor,
+            ),
+          )
               : _trip == null
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline_outlined,
-                            color: Colors.red,
-                          ),
-                          Text(
-                            "Error fetching trips!",
-                            style: TextStyle(fontSize: 15, color: Colors.red),
-                          )
-                        ],
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Divider(),
-
-                          // Driver Details
-                          Text(
-                            'Driver Details',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 10),
-                          ListTile(
-                            // leading: CircleAvatar(
-                            //   backgroundColor: Colors.blue, // Replace with driver's image if available
-                            //   radius: 30,
-                            //   child: Text("${widget.trip.driver?.}"), // Initials as placeholder
-                            // ),
-                            title: Text("${_trip?.driver?.name}"),
-                            subtitle: Text("${_trip?.driver?.phone}"),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                              'Plate Number: ${_trip?.driver?.plateNo == null ? "N/A" : _trip?.driver!.plateNo}'),
-                          Divider(),
-
-                          // Trip Details
-                          Text(
-                            'Trip Details',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('From:', style: TextStyle(fontSize: 16)),
-                              Text('${_trip?.riderFromAddress}',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('To:', style: TextStyle(fontSize: 16)),
-                              Text('${_trip?.riderToAddress}',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Fare:', style: TextStyle(fontSize: 16)),
-                              Text('\₦${'${_trip?.amount}'}',
-                                  style: TextStyle(fontSize: 16)),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Ride Status:',
-                                  style: TextStyle(fontSize: 16)),
-                              Text('${getBooking(_trip?.rideStatus)}',
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.green)),
-                            ],
-                          ),
-                          SizedBox(height: 20),
-
-                          // Ride Time Details
-                          _trip?.startTime == null
-                              ? Text("")
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Ride Start Time:',
-                                        style: TextStyle(fontSize: 16)),
-                                    Text('${_trip?.startTime}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                          SizedBox(height: 10),
-                          _trip?.endTime == null
-                              ? Text("")
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text('Ride End Time:',
-                                        style: TextStyle(fontSize: 16)),
-                                    Text('${_trip?.endTime}',
-                                        style: TextStyle(fontSize: 16)),
-                                  ],
-                                ),
-                          Gap(50),
-                          // Spacer(),
-                          _trip?.rideStatus == "BOOKING"
-                              ? BusyButton(
-                                  title: "Cancel",
-                                  isLoading: _isLoading,
-                                  color: Colors.red.withOpacity(0.9),
-                                  onTap: () {
-                                    if (_trip?.id == null) return;
-                                    declineTrip(context, _trip!.id!);
-                                  })
-                              : Container(),
-                          _trip?.rideStatus == "COMPLETED" ||
-                                  _trip?.rideStatus == "DRIVING"
-                              ? BusyButton(
-                                  title: "Report.",
-                                  color: AppColors.primaryColor,
-                                  onTap: () {})
-                              : Container(),
-                        ],
-                      ),
+              ? Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline_outlined,
+                  color: Colors.red,
+                  size: 50,
+                ),
+                const Gap(10),
+                const Text(
+                  "Error fetching trip details!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.red,
+                  ),
+                ),
+                const Gap(20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
                     ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    fetchTrip(widget.trip?.id);
+                  },
+                  child: const Text(
+                    "Retry",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+              : SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Driver Details
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Driver Details',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Gap(10),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(
+                            Icons.person,
+                            color: AppColors.primaryColor,
+                            size: 30,
+                          ),
+                          title: Text(
+                            _trip?.driver?.name ?? "Unknown Driver",
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          subtitle: Text(
+                            _trip?.driver?.phone ?? "N/A",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                        const Gap(10),
+                        Text(
+                          'Plate Number: ${_trip?.driver?.plateNo ?? "N/A"}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const Gap(20),
+
+                // Trip Details
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Trip Details',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Gap(10),
+                        _buildDetailRow(
+                          label: 'From:',
+                          value: _trip?.riderFromAddress ?? "N/A",
+                        ),
+                        const Gap(10),
+                        _buildDetailRow(
+                          label: 'To:',
+                          value: _trip?.riderToAddress ?? "N/A",
+                        ),
+                        const Gap(10),
+                        _buildDetailRow(
+                          label: 'Fare:',
+                          value: '\₦${_trip?.amount ?? "N/A"}',
+                        ),
+                        const Gap(10),
+                        _buildDetailRow(
+                          label: 'Status:',
+                          value: getBooking(_trip?.rideStatus),
+                          valueColor: Colors.green,
+                        ),
+                        if (_trip?.startTime != null) ...[
+                          const Gap(10),
+                          _buildDetailRow(
+                            label: 'Start Time:',
+                            value: _trip!.startTime!,
+                          ),
+                        ],
+                        if (_trip?.endTime != null) ...[
+                          const Gap(10),
+                          _buildDetailRow(
+                            label: 'End Time:',
+                            value: _trip!.endTime!,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+                const Gap(30),
+
+                // Action Buttons
+                if (_trip?.rideStatus == "BOOKING")
+                  BusyButton(
+                    title: "Cancel Trip",
+                    isLoading: _isLoading,
+                    color: Colors.red,
+                    onTap: () {
+                      if (_trip?.id == null) return;
+                      declineTrip(context, _trip!.id!);
+                    },
+                  ),
+                if (_trip?.rideStatus == "COMPLETED" ||
+                    _trip?.rideStatus == "DRIVING")
+                  BusyButton(
+                    title: "Report Issue",
+                    isLoading: _isLoading,
+                    color: AppColors.primaryColor,
+                    onTap: () {
+                      // Handle report issue
+                    },
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDetailRow({
+    required String label,
+    required String value,
+    Color? valueColor,
+  }) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: valueColor ?? Colors.black,
+          ),
+        ),
+      ],
     );
   }
 }

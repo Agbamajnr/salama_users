@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:salama_users/app/notifiers/auth.notifier.dart';
 import 'package:salama_users/app/utils/functions.dart';
+import 'package:salama_users/app/utils/logger.dart';
 import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/trips_model.dart';
 import 'package:salama_users/screens/home/address_search_screen.dart';
@@ -15,40 +16,53 @@ class RideHistoryScreen extends StatefulWidget {
 }
 
 class _RideHistoryScreenState extends State<RideHistoryScreen> {
-
   @override
   void initState() {
-    context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
     super.initState();
+    logger.d("Initializing RideHistoryScreen");
+
+    // Use WidgetsBinding to ensure the context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      logger.d("Fetching trips after frame is rendered");
+      context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
-      builder: (context, AuthNotifier auth, child) =>
-       Scaffold(
+      builder: (context, AuthNotifier auth, child) => Scaffold(
         backgroundColor: AppColors.white,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.primaryColor,
           automaticallyImplyLeading: false,
           title: const Text(
-            'History',
+            'Ride History',
             style: TextStyle(
-                color: Colors.black, fontSize: 24, fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: false,
           elevation: 0,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh, color: Colors.white),
+              onPressed: () {
+                context.read<AuthNotifier>().fetchAllTrips(context, skip: 0, limit: 10);
+              },
+            ),
+          ],
         ),
-        body:
-        auth.isLoading && auth.trips.isEmpty ? Center(
+        body: auth.isLoading && auth.trips.isEmpty
+            ? const Center(
           child: CircularProgressIndicator(
             color: AppColors.primaryColor,
-            backgroundColor: AppColors.primaryColor,
-            valueColor:
-            AlwaysStoppedAnimation<Color>(AppColors.lightBlue),
           ),
-        ) : auth.trips.isEmpty ?
-        Center(
+        )
+            : auth.trips.isEmpty
+            ? Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,37 +72,51 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
                 size: 50,
                 color: AppColors.primaryColor,
               ),
-              Gap(10),
-
-              Text(
-                "Trips not found, try again later.",
+              const Gap(10),
+              const Text(
+                "No trips found, try again later.",
                 style: TextStyle(
-                    color: AppColors.primaryColor,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700
-                ),),
-              Gap(7),
+                  color: AppColors.primaryColor,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Gap(20),
               ElevatedButton(
-                  style: ButtonStyle(
-                    // backgroundBuilder: AppColors.primaryColor
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
                   ),
-                  onPressed: () async {
-                    final results = await Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const AddressSearchScreen()),
-                    );
-                  },
-                  child: auth.isLoading
-                      ? CircularProgressIndicator()
-                      : Text("Book A trip")
-              )
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () async {
+                  final results = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddressSearchScreen(),
+                    ),
+                  );
+                },
+                child: const Text(
+                  "Book A Trip",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
             ],
           ),
-        ) :
-        ListView.builder(
+        )
+            : ListView.builder(
+          padding: const EdgeInsets.all(16),
           itemCount: auth.trips.length,
           itemBuilder: (context, index) {
-            return _buildRideHistoryCard(context,auth.trips[index]);
+            return _buildRideHistoryCard(context, auth.trips[index]);
           },
         ),
       ),
@@ -96,52 +124,95 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
   }
 
   Widget _buildRideHistoryCard(BuildContext context, Trip ride) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: Card(
-        color: AppColors.grey.withOpacity(0.09),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          onTap: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => SingleTrip(trip: ride)),
-            );
-          },
-          leading: CircleAvatar(
-            backgroundColor: Colors.grey[200],
-            child:
-                const Icon(Icons.directions_car, color: AppColors.primaryColor),
-          ),
-          title: Text('${ride.riderToAddress}', style: TextStyle(
-            fontWeight: FontWeight.w700
-          ),),
-          subtitle: Text('${Functions.getFormattedDate(ride.createdAt!)}'),
-          trailing: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SingleTrip(trip: ride),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(15),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
             children: [
-              // Text('${ride.amount}',
-              //     style: const TextStyle(fontWeight: FontWeight.bold)),
-              // const SizedBox(height: 5),
-              ride.rideStatus != BookingStatus.COMPLETED ?  Icon(Icons.arrow_forward_ios_outlined, size: 16,) : InkWell(
-                onTap: (){
-                  if(ride.id == null)return;
-                  _showTripReport(context, ride.id!);
-                },
-                child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                    decoration: BoxDecoration(
-                        color: ride.rideStatus == BookingStatus.COMPLETED ? AppColors.primaryColor: Colors.red,
-                        borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      ride.rideStatus == BookingStatus.COMPLETED ? "Report" : "Cancel",
-                      style: TextStyle(color: AppColors.white),
-                    ))
-
-                ,
-              )
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.directions_car,
+                  color: AppColors.primaryColor,
+                  size: 30,
+                ),
+              ),
+              const Gap(16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ride.riderToAddress ?? "Unknown Destination",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Gap(4),
+                    Text(
+                      Functions.getFormattedDate(ride.createdAt!),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  if (ride.rideStatus != BookingStatus.COMPLETED)
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: Colors.grey,
+                    )
+                  else
+                    InkWell(
+                      onTap: () {
+                        if (ride.id == null) return;
+                        _showTripReport(context, ride.id!);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          "Report",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),
@@ -155,74 +226,74 @@ class _RideHistoryScreenState extends State<RideHistoryScreen> {
   void _showTripReport(BuildContext context, String tripId) {
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20.0)),
       ),
       isScrollControlled: true,
-      // isDismissible: context.read<AuthNotifier>().isLoading,
       builder: (BuildContext context) {
         return Consumer<AuthNotifier>(
-          builder: (context, AuthNotifier auth, child) => Wrap(children: [
-            Padding(
-             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom),
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min, // Adjusts size based on content
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Driver Details
-                      Center(
-                        child: Text(
-                          'Report Trip',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
+          builder: (context, AuthNotifier auth, child) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'Report Trip',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 15),
-                      TextFormField(
-                        controller: _reportMessageController,
-                        maxLines: 3,
-                        validator: (value){
-                          if(value == null)return "message is empty";
-                          if(value.isEmpty){
-                            return "Add a message";
-                          }
-                          if(value.length > 200){
-                            return "length cannot be more than 200 characters";
-                          }
-
-                          return null;
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Message',
-                          border: OutlineInputBorder(),
-                        ),
+                    ),
+                    const SizedBox(height: 15),
+                    TextFormField(
+                      controller: _reportMessageController,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        labelText: 'Message',
+                        border: OutlineInputBorder(),
                       ),
-
-                      SizedBox(height: 30),
-                      BusyButton(
-                          title: "Report",
-                          isLoading: auth.isLoading,
-                          onTap: () {
-                            if(_formKey.currentState!.validate()){
-                              auth.reportTrip(context, tripId, _reportMessageController.text.trim());
-                              _reportMessageController.clear();
-                            }
-
-                          })
-                    ],
-                  ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter a message";
+                        }
+                        if (value.length > 200) {
+                          return "Message cannot exceed 200 characters";
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    BusyButton(
+                      title: "Submit Report",
+                      isLoading: auth.isLoading,
+                      onTap: () {
+                        if (_formKey.currentState!.validate()) {
+                          auth.reportTrip(
+                            context,
+                            tripId,
+                            _reportMessageController.text.trim(),
+                          );
+                          _reportMessageController.clear();
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ),
             ),
-          ]),
+          ),
         );
       },
     );
   }
 }
-

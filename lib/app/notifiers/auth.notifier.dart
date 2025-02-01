@@ -125,8 +125,8 @@ class AuthNotifier extends ChangeNotifier {
       if (response.statusCode == 201) {
         _db.getToken();
         Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => VerifyotpScreen(
-                  identiy: payload.email.toString(),
+            builder: (context) => VerifyOtpScreen(
+                  identity: payload.email.toString(),
                   intent: "sign_otp",
                 )));
         // _loginData = response.data['data'];
@@ -350,7 +350,7 @@ class AuthNotifier extends ChangeNotifier {
       logger.d(lng);
       logger.d(lat);
       Response response = await _api.dio.get(
-          '/taxi/users/available/drivers?lat=333&rad=5000&lon=211121'
+          '/taxi/users/available/drivers?skip=0&limit=30&lat=333&rad=5000&lon=211121'
           // '/taxi/users/available/drivers?lat=${latitude}&rad=${radius}&lon=${longitude}'
           );
 

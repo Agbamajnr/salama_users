@@ -1,4 +1,4 @@
-package com.salama.users_app
+package com.salamadrive.users
 
 import io.flutter.embedding.android.FlutterActivity
 

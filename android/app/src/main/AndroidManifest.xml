@@ -6,6 +6,9 @@
         android:label="salama"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyABDcBYH-R8oE2CLsj6A0smWghFbRHMfRI"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

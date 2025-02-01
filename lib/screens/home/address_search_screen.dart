@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:salama_users/app/network/api_client.dart';
 import 'package:salama_users/app/network/api_errors.dart';
@@ -9,7 +9,6 @@ import 'package:salama_users/constants/colors.dart';
 import 'package:salama_users/data/models/address_response.model.dart';
 import 'package:salama_users/locator.dart';
 import 'package:salama_users/screens/home/available_screen.dart';
-import 'package:salama_users/widgets/custom_single_scroll_view.dart';
 
 class AddressSearchScreen extends StatefulWidget {
   const AddressSearchScreen({super.key});
@@ -27,156 +26,167 @@ class _AddressSearchScreenState extends State<AddressSearchScreen> {
   List<AddressResponse> searchResults = [];
   AddressResponse? _userSelectedTo;
   AddressResponse? _userSelectedFrom;
-
   bool isTo = false;
 
-  Future<void> performSearch() async {
-    String toValue = toController.text;
-    String fromValue = fromController.text;
-
-    // if (toValue.isEmpty && fromValue.isEmpty) {
-    //   // Show error if fields are empty
-    //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-    //     content: Text('Please fill both fields'),
-    //   ));
-    //   return;
-    // }
-
-    setState(() {
-      isLoading = true;
-    });
-
-    // Assuming your API URL looks like this
-    String apiUrl = '/taxi/location/address?longitude=212331&latitude=3.1211&radius=50000&address=diamond hill';
+  Future<void> performSearch(String search) async {
+    if(search.length < 1)return;
+    setState(() => isLoading = true);
+    String apiUrl = '/taxi/location/address?address=${search}';
 
     try {
       var response = await _api.dio.get(apiUrl);
-      logger.wtf(response.data);
       if (response.statusCode == 200) {
         logger.d(response.data);
         final List<dynamic> data = response.data['data'];
-        final List<AddressResponse> results = data.map((json) => AddressResponse.fromJson(json)).toList();
-        setState(() {
-            searchResults = results;
-            // toSearchResults = results;
-        });
+        if(data.isNotEmpty){
+          setState(() {
+            searchResults = data.map((json) => AddressResponse.fromJson(json)).toList();
+          });
+        }
+
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Error: ${response.statusCode}'),
-        ));
+        setState(() => searchResults = []);
+        AppSnackbar.error(context, message: "Error while fetching address");
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error fetching data: $e'),
-      ));
+    } on DioException catch (e) {
+      setState(() => searchResults = []);
+      final message = e.response?.data['message'] ?? "Error while fetching address, try again later";
+      AppSnackbar.error(context, message: message);
+      setState(() => searchResults = []);
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return AbsorbPointer(
-      absorbing: isLoading,
-      child: Scaffold(
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      appBar: AppBar(
         backgroundColor: AppColors.white,
-        appBar: AppBar(
-          backgroundColor: AppColors.white,
-          title: Text('Search Screen'),
-        ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              TextField(
-                controller: fromController,
-                onChanged: (String value) async{
-                  setState(() {
-                    isTo = false;
-                  });
-                  await performSearch();
-                },
-                decoration: InputDecoration(
-                  labelText: 'Where To',
-                  suffix: isTo == false && isLoading == true ? SizedBox(
-                    height: 15,
-                    width: 15,
-                    child: CircularProgressIndicator(
+        title: Text('Search Address', style: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.w600)),
+        elevation: 0,
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // FROM LOCATION FIELD
+            _buildTextField(
+              controller: fromController,
+              hint: 'Enter your current location',
+              icon: Icons.my_location,
+              isLoading: isLoading && !isTo,
+              onChanged: (value) async {
+                setState(() => isTo = false);
+                await performSearch(value);
+              },
+            ),
+            SizedBox(height: 12),
 
-                    ),
-                  ) : Text(""),
-                  border: OutlineInputBorder(),
+            // DESTINATION LOCATION FIELD
+            _buildTextField(
+              controller: toController,
+              hint: 'Enter destination',
+              icon: Icons.location_on,
+              isLoading: isLoading && isTo,
+              onChanged: (value) async {
+                setState(() => isTo = true);
+                await performSearch(value);
+              },
+            ),
+            SizedBox(height: 20),
+
+            // SEARCH RESULTS LIST
+            Expanded(
+              child: AnimatedSwitcher(
+                duration: Duration(milliseconds: 300),
+                child: searchResults.isEmpty
+                    ? Center(child: Text('No results found', style: TextStyle(color: Colors.grey)))
+                    : ListView.builder(
+                  itemCount: searchResults.length,
+                  itemBuilder: (context, index) {
+                    final address = searchResults[index];
+                    return Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      margin: EdgeInsets.symmetric(vertical: 6),
+                      child: ListTile(
+                        onTap: () {
+                          setState(() {
+                            if (isTo) {
+                              _userSelectedTo = address;
+                              toController.text = address.address.toString();
+                            } else {
+                              _userSelectedFrom = address;
+                              fromController.text = address.address.toString();
+                            }
+                            searchResults.clear();
+                          });
+                        },
+                        title: Text(address.address ?? "", style: TextStyle(fontWeight: FontWeight.w500)),
+                        leading: Icon(Icons.place, color: AppColors.primaryColor),
+                        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+                      ),
+                    );
+                  },
                 ),
               ),
-              SizedBox(height: 15),
-              TextField(
-                controller: toController,
-                onChanged: (String value) async{
-                  setState(() {
-                    isTo = true;
-                  });
-                  await performSearch();
-                },
-                decoration: InputDecoration(
-                  labelText: 'Destination',
-                  border: OutlineInputBorder(),
-                  suffix: isTo == true && isLoading == true ?
-                  SizedBox(
-                      height: 15,
-                      width: 15,
-                      child: CircularProgressIndicator()) : Text("")
+            ),
+          ],
+        ),
+      ),
+
+      // Floating Action Button
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primaryColor,
+        elevation: 6,
+        onPressed: () {
+          if (_userSelectedTo == null) {
+            AppSnackbar.error(context, message: "Please select a destination.");
+          } else if (_userSelectedFrom == null) {
+            AppSnackbar.error(context, message: "Please select your location.");
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AvailableScreen(
+                  userSelectedTo: _userSelectedTo!,
+                  userSelectedFrom: _userSelectedFrom!,
                 ),
               ),
-              SizedBox(height: 20),
-              Column(
-                children: List.generate(searchResults.length, (index) {
-                  return ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    onTap: () {
-                      setState(() {
-                        if (isTo == true) {
-                          _userSelectedTo = searchResults[index];
-                          toController.text = _userSelectedTo!.address.toString();
-                          searchResults = [];
-                        } else {
-                          _userSelectedFrom = searchResults[index];
-                          fromController.text = _userSelectedFrom!.address.toString();
-                        }
-                      });
-                    },
-                    title: Text('${searchResults[index].address}'),
-                    trailing: Icon(Icons.arrow_forward_ios_outlined),
-                  );
-                }),
-              ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: AppColors.primaryColor,
-          onPressed: (){
-            if(_userSelectedTo == null){
-              AppSnackbar.error(context, message: "Input a valid destination address");
-            }
+            );
+          }
+        },
+        child: Icon(Icons.arrow_forward, color: Colors.white),
+      ),
+    );
+  }
 
-            else if(_userSelectedFrom == null){
-              AppSnackbar.error(context, message: "Input a valid location address");
-            }
-            else{
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AvailableScreen(userSelectedTo: _userSelectedTo!, userSelectedFrom: _userSelectedFrom!,)),
-              );
-            }
-
-
-          }, // The function to be executed
-          child: Icon(Icons.arrow_forward, color: AppColors.white,), // Icon for the button
-          tooltip: 'Go', // Tooltip when hovering over the button
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat, // Position of the button
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    required Function(String) onChanged,
+    required bool isLoading,
+  }) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      decoration: InputDecoration(
+        prefixIcon: Icon(icon, color: AppColors.primaryColor),
+        hintText: hint,
+        filled: true,
+        fillColor: Colors.grey.shade100,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+        suffixIcon: isLoading
+            ? Padding(
+          padding: EdgeInsets.all(10),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        )
+            : null,
       ),
     );
   }

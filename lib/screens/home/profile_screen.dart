@@ -72,35 +72,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
             CircleAvatar(
               radius: 30,
               backgroundColor: AppColors.skyBlue,
-              child: user.profileImage == null ||
-                      user.profileImage == 'default.png'
-                  ? Icon(Icons.error_outline)
-                  : CachedNetworkImage(
-                      imageUrl: user.profileImage ?? "",
-                      imageBuilder: (context, imageProvider) => Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
-                            // colorFilter:
-                            // ColorFilter.mode(Colors.red, BlendMode.colorBurn)
-                          ),
-                        ),
-                      ),
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) => Icon(Icons.error),
-                    ),
+              child: user.profileImage == null || user.profileImage == 'default.png'
+                  ? Icon(Icons.account_circle, size: 60, color: Colors.white)
+                  : ClipOval(
+                child: CachedNetworkImage(
+                  imageUrl: user.profileImage!,
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.cover,
+                  errorWidget: (context, url, error) =>
+                      Icon(Icons.account_circle, size: 80, color: Colors.white),
+                ),
+              ),
             ),
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${user.firstName} ${user.lastName} ${user.middleName ?? ""}',
+                  '${user.firstName} ${user.lastName}',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                Text('${user.phone}', style: TextStyle(color: Colors.black54)),
+                Text('${user.phone}', style: TextStyle(color: Colors.black54, fontWeight: FontWeight.w600)),
                 Text('${user.email ?? ""}',
                     style: TextStyle(color: Colors.black54)),
               ],
@@ -129,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           );
         }),
         _buildListTile(context, Icons.privacy_tip, 'Privacy', () async{
-          await EasyLauncher.url(url: "https://pub.dev");
+          await EasyLauncher.url(url: "https://salamadrive.com//privacy-policy.html");
         }),
         _buildListTile(context, Icons.info_outline, 'About', () {
           Navigator.push(
@@ -436,7 +429,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             builder: (context, AuthNotifier user, child) {
                               return InkWell(
                                 onTap: () async {
-                                  await user.deleteAccount(context);
+                                  await EasyLauncher.url(url: "https://salamadrive.com/confirm-delete.html");
+                                  // await user.deleteAccount(context);
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),

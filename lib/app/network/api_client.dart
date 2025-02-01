@@ -14,6 +14,9 @@ class DioManager {
   DioManager(this.tokenProvider) {
     _dio = Dio(BaseOptions(
       baseUrl: 'https://api.salamadrive.com',
+      connectTimeout: Duration(seconds: 10),
+      receiveTimeout: Duration(seconds: 15),
+      sendTimeout: Duration(seconds: 10),
       headers: {
         'Accept': 'application/json',
         'Authorization': 'Bearer $tokenProvider',

@@ -13,15 +13,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
   final _formKey = GlobalKey<FormState>();
-
-  // Controllers for the text fields
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
 
-  // Disposing controllers when done
   @override
   void dispose() {
     _emailController.dispose();
@@ -29,125 +25,185 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // Function to handle login
-  void _handleLogin() {
-    if (_formKey.currentState!.validate()) {
-      // Here you can handle the login logic (API call or authentication logic)
-      String email = _emailController.text;
-      String password = _passwordController.text;
-
-      // Just a sample print to demonstrate
-      print('Email: $email');
-      print('Password: $password');
-
-      // Simulate success login
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logged in as $email')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthNotifier>(
       builder: (context, AuthNotifier auth, child) => Scaffold(
         backgroundColor: AppColors.white,
-        appBar: AppBar(
-          title: const Text('Login'),
-          automaticallyImplyLeading: false,
-        ),
         body: CustomSingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                // mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Gap(30),
-                  // Email field
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Enter a valid email';
-                      }
-                      return null;
-                    },
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 60),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Logo or Illustration
+                Image.asset(
+                  'assets/logo_salama.png', // Replace with your asset
+                  height: 20,
+                ),
+                const Gap(20),
+                const Text(
+                  "Welcome Back!",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.primaryColor,
                   ),
-                  const SizedBox(height: 16.0),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                  ),
+                ),
+                const Gap(8),
+                const Text(
+                  "Log in to continue using Salama.",
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const Gap(30),
 
-                  const SizedBox(height: 44.0),
-                  const Spacer(),
-                  BusyButton(
-                    title: "Proceed",
-                    isLoading: auth.isLoading,
-                    onTap: () {
-                      if (_formKey.currentState!.validate()) {
-                        FocusScopeNode currentFocus = FocusScope.of(context);
-                        if (!currentFocus.hasPrimaryFocus &&
-                            currentFocus.focusedChild != null) {
-                          currentFocus.focusedChild?.unfocus();
-                        }
-                        auth.login(context,
-                            identity: _emailController.text.trim(),
-                            password: _passwordController.text.trim(),
-                            userType: "user",
-                            device: "ios");
-                      }
-                    },
-                  ),
-                  const Gap(10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                // Form
+                Form(
+                  key: _formKey,
+                  child: Column(
                     children: [
-                      const Text("No account? "),
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to the Registration screen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegistrationScreen()),
-                          );
+                      _buildTextField(
+                        controller: _emailController,
+                        label: "Email Address",
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your email';
+                          }
+                          if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                            return 'Enter a valid email';
+                          }
+                          return null;
                         },
-                        child: const Text(
-                          "Register",
-                          style: TextStyle(
-                            color: AppColors.primaryColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                      ),
+                      const Gap(16),
+                      _buildTextField(
+                        controller: _passwordController,
+                        label: "Password",
+                        icon: Icons.lock_outline,
+                        isPassword: true,
+                        isPasswordVisible: _isPasswordVisible,
+                        onVisibilityToggle: () {
+                          setState(() {
+                            _isPasswordVisible = !_isPasswordVisible;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          }
+                          return null;
+                        },
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                const Gap(10),
+
+                // Forgot Password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Handle Forgot Password
+                    },
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const Gap(30),
+
+                // Login Button
+                BusyButton(
+                  title: "Login",
+                  isLoading: auth.isLoading,
+                  onTap: () {
+                    if (_formKey.currentState!.validate()) {
+                      FocusScope.of(context).unfocus();
+                      auth.login(
+                        context,
+                        identity: _emailController.text.trim(),
+                        password: _passwordController.text.trim(),
+                        userType: "user",
+                        device: "ios",
+                      );
+                    }
+                  },
+                ),
+
+                const Gap(20),
+
+                // Register Option
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? "),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => RegistrationScreen()),
+                        );
+                      },
+                      child: const Text(
+                        "Register",
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool isPassword = false,
+    bool isPasswordVisible = false,
+    VoidCallback? onVisibilityToggle,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: isPassword ? !isPasswordVisible : false,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppColors.primaryColor),
+        suffixIcon: isPassword
+            ? IconButton(
+          icon: Icon(
+            isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: onVisibilityToggle,
+        )
+            : null,
+        filled: true,
+        fillColor: Colors.grey[100],
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
